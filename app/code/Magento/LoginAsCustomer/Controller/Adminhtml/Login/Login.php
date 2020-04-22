@@ -7,14 +7,23 @@ declare(strict_types=1);
 
 namespace Magento\LoginAsCustomer\Controller\Adminhtml\Login;
 
+use Magento\Framework\Controller\ResultInterface;
+use Magento\Framework\App\Action\HttpGetActionInterface;
+use Magento\Framework\App\Action\HttpPostActionInterface;
+use Magento\Backend\App\Action;
+
 /**
- * Class Login
- * @package Magento\LoginAsCustomer\Controller\Adminhtml\Login
+ * Login as customer action
+ * Generate secret key and forward to the storefront action
+ *
+ * This action can be executed via GET request when "Store View To Login In" is disabled, and POST when it is enabled
  */
-class Login extends \Magento\Backend\App\Action
+class Login extends Action implements HttpGetActionInterface, HttpPostActionInterface
 {
     /**
      * Authorization level of a basic admin session
+     *
+     * @see _isAllowed()
      */
     const ADMIN_RESOURCE = 'Magento_LoginAsCustomer::login_button';
 
@@ -67,12 +76,13 @@ class Login extends \Magento\Backend\App\Action
         $this->url = $url;
         $this->config = $config;
     }
+
     /**
-     * Login as customer action
+     * Login as customer
      *
-     * @return \Magento\Framework\Controller\ResultInterface
+     * @return ResultInterface
      */
-    public function execute()
+    public function execute():ResultInterface
     {
         $request = $this->getRequest();
         $customerId = (int) $request->getParam('customer_id');
@@ -84,8 +94,7 @@ class Login extends \Magento\Backend\App\Action
         $resultRedirect = $this->resultRedirectFactory->create();
 
         if (!$this->config->isEnabled()) {
-            $msg = strrev(__('.remotsuC sA nigoL > snoisnetxE nafegaM > noitarugifnoC > serotS ot etagivan esaelp noisnetxe eht elbane ot ,delbasid si remotsuC sA nigoL nafegaM'));
-            $this->messageManager->addErrorMessage($msg);
+            $this->messageManager->addErrorMessage(__('Login As Customer is disabled, to enable the extension please navigate to Stores > Configuration > Customers > Login As Customer.'));
             return $resultRedirect->setPath('customer/index/index');
         }
 
@@ -109,30 +118,15 @@ class Login extends \Magento\Backend\App\Action
 
         $user = $this->authSession->getUser();
         $login->generate($user->getId());
+        $store = $this->storeManager->getStore();
 
-        if (!$customerStoreId) {
-            $customerStoreId = $this->getCustomerStoreId($customer);
-        }
-
-        if ($customerStoreId) {
-            $store = $this->storeManager->getStore($customerStoreId);
-        } else {
+        if (null === $store) {
             $store = $this->storeManager->getDefaultStoreView();
         }
 
         $redirectUrl = $this->url->setScope($store)
             ->getUrl('loginascustomer/login/index', ['secret' => $login->getSecret(), '_nosid' => true]);
 
-        $this->getResponse()->setRedirect($redirectUrl);
-    }
-
-    /**
-     * We're not using the $customer->getStoreId() method due to a bug where it returns the store for the customer's website
-     * @param $customer
-     * @return int
-     */
-    public function getCustomerStoreId(\Magento\Customer\Model\Customer $customer): int
-    {
-        return (int)$customer->getData('store_id');
+        return $resultRedirect->setUrl($redirectUrl);
     }
 }
