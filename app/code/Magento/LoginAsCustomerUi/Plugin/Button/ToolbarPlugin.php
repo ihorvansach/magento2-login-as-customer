@@ -10,6 +10,9 @@ namespace Magento\LoginAsCustomerUi\Plugin\Button;
 use Magento\Backend\Block\Widget\Button\ButtonList;
 use Magento\Backend\Block\Widget\Button\Toolbar;
 use Magento\Framework\View\Element\AbstractBlock;
+use Magento\Framework\Escaper;
+use Magento\Framework\AuthorizationInterface;
+use Magento\Framework\UrlInterface;
 
 /**
  * Plugin for \Magento\Backend\Block\Widget\Button\Toolbar.
@@ -17,26 +20,34 @@ use Magento\Framework\View\Element\AbstractBlock;
 class ToolbarPlugin
 {
     /**
-     * @var \Magento\Framework\AuthorizationInterface
+     * @var AuthorizationInterface
      */
     private $authorization;
 
     /**
-     * @var \Magento\Framework\UrlInterface
+     * @var UrlInterface
      */
     private $urlInterface;
 
     /**
+     * @var Escaper
+     */
+    private $escaper;
+
+    /**
      * ToolbarPlugin constructor.
-     * @param \Magento\Framework\AuthorizationInterface $authorization
-     * @param \Magento\Framework\UrlInterface $urlInterface
+     * @param AuthorizationInterface $authorization
+     * @param UrlInterface $urlInterface
+     * @param Escaper $escaper
      */
     public function __construct(
-        \Magento\Framework\AuthorizationInterface $authorization,
-        \Magento\Framework\UrlInterface $urlInterface
+        AuthorizationInterface $authorization,
+        UrlInterface $urlInterface,
+        Escaper $escaper
     ) {
         $this->authorization = $authorization;
         $this->urlInterface = $urlInterface;
+        $this->escaper = $escaper;
     }
 
     /**
@@ -74,7 +85,9 @@ class ToolbarPlugin
                         'guest_to_customer',
                         [
                             'label' => __('Login As Customer'),
-                            'onclick' => 'window.open(\'' . $buttonUrl . '\')',
+                            'onclick' => 'window.lacConfirmationPopup("'
+                                . $this->escaper->escapeHtml($this->escaper->escapeJs($buttonUrl))
+                                . '")',
                             'class' => 'reset'
                         ],
                         -1

@@ -127,7 +127,11 @@ class Login extends Action implements HttpGetActionInterface, HttpPostActionInte
         $user = $this->authSession->getUser();
         $secret = $this->createSecretProcessor->execute($customerId, (int)$user->getId());
 
-        $store = $this->storeManager->getStore();
+        $store = null;
+        if ($customerStoreId) {
+            $store = $this->storeManager->getStore($customerStoreId);
+        }
+
         if (null === $store) {
             $store = $this->storeManager->getDefaultStoreView();
         }
