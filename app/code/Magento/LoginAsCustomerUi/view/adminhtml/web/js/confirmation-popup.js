@@ -21,9 +21,12 @@ define([
          */
         initialize: function () {
             var self = this,
-                content = '<div class="message message-warning">' + self.content + '</div>';
+                content;
 
+            /* _super should be the first to make all properties available */
             this._super();
+
+            content = '<div class="message message-warning">' + self.content + '</div>';
 
             if (self.showStoreViewOptions) {
                 content = template(
