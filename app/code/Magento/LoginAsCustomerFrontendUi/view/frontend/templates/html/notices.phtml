@@ -11,7 +11,7 @@
 $viewFileUrl = $block->getViewFileUrl('Magento_LoginAsCustomerFrontendUi::images/magento-icon.svg');
 ?>
 <?php if ($block->getConfig()->isEnabled()): ?>
-    <div  data-bind="scope: 'loginAsCustomer'" >
+    <div  data-bind="scope: 'loginAsCustomerNotices'" >
         <div class="lac-notification clearfix" data-bind="visible: isVisible" style="display: none">
             <div class="top-container">
                 <div class="lac-notification-icon wrapper">
@@ -31,8 +31,8 @@ $viewFileUrl = $block->getViewFileUrl('Magento_LoginAsCustomerFrontendUi::images
         "*": {
             "Magento_Ui/js/core/app": {
                 "components": {
-                    "loginAsCustomer": {
-                        "component": "Magento_LoginAsCustomerFrontendUi/js/view/loginAsCustomer"
+                    "loginAsCustomerNotices": {
+                        "component": "Magento_LoginAsCustomerFrontendUi/js/view/notices"
                     }
                 }
             }

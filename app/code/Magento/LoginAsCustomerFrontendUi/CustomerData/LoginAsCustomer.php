@@ -17,7 +17,7 @@ use Magento\Store\Model\StoreManagerInterface;
  *
  * @SuppressWarnings(PHPMD.CookieAndSessionMisuse)
  */
-class LoginAsCustomerUi implements SectionSourceInterface
+class LoginAsCustomer implements SectionSourceInterface
 {
     /**
      * @var Session
@@ -55,7 +55,8 @@ class LoginAsCustomerUi implements SectionSourceInterface
 
         return [
             'adminUserId' => $this->customerSession->getLoggedAsCustomerAdmindId(),
-            'websiteName' => $this->storeManager->getWebsite()->getName()
+            'websiteName' => $this->storeManager->getWebsite()->getName(),
+            'fullname' => $this->customerSession->getCustomer()->getName(),
         ];
     }
 }
